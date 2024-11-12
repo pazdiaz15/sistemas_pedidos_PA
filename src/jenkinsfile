@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Generate Javadoc') {
+            steps {
+                // Crea la carpeta docs para almacenar la documentación generada
+                sh 'mkdir -p docs'
+                // Genera la documentación de Javadoc para Main.java y la guarda en docs
+                sh 'javadoc -d docs -sourcepath src/main/java/classes src/main/java/classes/Main.java'
+            }
+        }
+        stage('Archive Documentation') {
+            steps {
+                // Archiva los archivos de documentación generados para su consulta en Jenkins
+                archiveArtifacts artifacts: 'docs/**/*', allowEmptyArchive: true
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Documentación Javadoc generada y archivada con éxito.'
+        }
+        failure {
+            echo 'Error al generar o archivar la documentación Javadoc.'
+        }
+    }
+}
